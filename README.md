@@ -9,15 +9,21 @@ npm install --save castmydata-mongodb
 ## Usage
 
 ```javascript
-castmydata.start({
-    db: require('castmydata-mongodb'),
-    mongoURL: 'mongodb://localhost:27017/test', // MongoDB URL
-    mongoConnOptions: {},                       // Optional Connection Config
-    mongoAuth: {                                // Optional DB Authentication
-        username: 'test',
-        password: 'test',
-        options: {}                             // Optional Authentication Config
-    },
+var CastMyData = require('castmydata-server');
+var mongodb    = require('castmydata-mongodb');
+
+
+var castmydata = new CastMyData({
+    db: new mongodb(),
+    config: {
+        mongo: {
+            url: 'mongodb://localhost:27017/test', // MongoDB Database URL
+            connOptions: {},                       // connection options
+            username: 'someuser',                  // username
+            password: 'somepass',                  // password
+            authOptions: {}                        // authentication options
+        }
+    }
 });
 ```
 
@@ -27,7 +33,7 @@ These options are passed during the connection of a new MongoClient.
 
 Reference: [MongoClient API Doc](http://mongodb.github.io/node-mongodb-native/2.2/api/MongoClient.html)
 
-#### MongoDB Authentication
+#### MongoDB Authentication Options
 
 These options are used to authenticate CastMyData with the MongoDB Instance.
 

@@ -20,7 +20,17 @@ var client = require('castmydata-jsclient');
 
 describe('CastMyData MongoDB Tests', function() {
 
-    var castmydata = require('castmydata-server');
+    var CastMyData = require('castmydata-server');
+    var castmydata = new CastMyData({
+        db: (new(require('../castmydata-mongodb'))()),
+        config: {
+            mongo: {
+                url: 'mongodb://localhost:27017/test',
+                // username: process.env.MONGO_USER,
+                // password: process.env.MONGO_PASS
+            }
+        }
+    });
 
     this.timeout(5000);
 
@@ -29,21 +39,17 @@ describe('CastMyData MongoDB Tests', function() {
             'content-type': 'application/json',
             'Authorization': 'Bearer ' + process.env.API_TOKEN
         }
-    })
+    });
 
     before(function(done) {
         endpoint = new client.Endpoint(url, 'mochatest');
-        castmydata.start({
-            db: require('../index.js'),
-            mongoURL: 'mongodb://localhost:27017/test',
-            mongoConnOptions: {}
-        }, done);
+        castmydata.startup(done);
     });
 
     after(function(done) {
         this.timeout = 10000;
         endpoint.close();
-        castmydata.stop(done);
+        castmydata.shutdown(done);
     });
 
     it('should deny api request without auth token', function(done) {
@@ -132,16 +138,15 @@ describe('CastMyData MongoDB Tests', function() {
 
     it('should be able to subscribe', function(done) {
         this.slow(2000);
-        endpoint.subscribe(function(){
+        endpoint.subscribe(function() {
             done();
         }).should.be.ok();
     });
 
-    var id;
     it('should be able to create a record', function(done) {
         endpoint.post({
             title: 'Buy Eggs'
-        }, function(model){
+        }, function(model) {
             model.should.have.propertyByPath('title').eql('Buy Eggs');
             model.should.have.propertyByPath('meta', 'createdAt').should.be.ok();
             model.id.should.be.ok();
@@ -171,7 +176,7 @@ describe('CastMyData MongoDB Tests', function() {
     it('should be able to update query models when a new record is created', function(done) {
         endpoint.post({
             title: 'Buy Eggs'
-        }, function(model){
+        }, function(model) {
             query.models.length.should.be.eql(2);
             id2 = model.id;
             done();
@@ -181,7 +186,7 @@ describe('CastMyData MongoDB Tests', function() {
     it('should be able to update a record by id', function(done) {
         endpoint.put(id, {
             title: 'Buy Bread'
-        }, function(model){
+        }, function(model) {
             model.should.have.property('title').eql('Buy Bread');
             model.should.have.propertyByPath('meta', 'updatedAt').should.be.ok();
             model.id.should.eql(id);
@@ -191,7 +196,7 @@ describe('CastMyData MongoDB Tests', function() {
     });
 
     it('should be able to delete a record by id', function(done) {
-        endpoint.delete(id2, function(model){
+        endpoint.delete(id2, function(model) {
             model.should.not.have.property('title');
             model.should.have.propertyByPath('meta', 'deletedAt').should.be.ok();
             model.id.should.eql(id2);
@@ -201,14 +206,14 @@ describe('CastMyData MongoDB Tests', function() {
     });
 
     it('should be able to clear db', function(done) {
-        endpoint.clear(function(){
+        endpoint.clear(function() {
             endpoint.models.length.should.eql(0);
             done();
         }).should.be.ok();
     });
 
     it('should be able to unsubscribe', function(done) {
-        endpoint.unsubscribe(function(){
+        endpoint.unsubscribe(function() {
             endpoint.models.length.should.eql(0);
             done();
         }).should.be.ok();
