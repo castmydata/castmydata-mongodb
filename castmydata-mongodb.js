@@ -33,8 +33,6 @@
             var password = app.get('mongo.password');
             var authOptions = app.get('mongo.authOptions', {});
 
-            console.log(username, password)
-
             MongoClient.connect(url, connOptions, function(err, db) {
                 self.client = db;
                 if (username || password) {
