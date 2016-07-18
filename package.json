@@ -1,6 +1,6 @@
 {
   "name": "castmydata-mongodb",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "MongoDB Backend for CastMyData",
   "repository": "castmydata/castmydata-mongodb",
   "main": "castmydata-mongodb.js",
